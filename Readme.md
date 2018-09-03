@@ -24,3 +24,9 @@ This Python 3 script is used to read or write data onto FATEK PLC using Modbus A
 	2. In this case we use Port 2 of CB55 Module
 	3. Open WinProLadder software and set Port 2 to use Modbus ASCII Slave as its protocol
 	4. Connect FATEK PLC to computer using RS485 to USB converter
+
+> Refferences
+
+	1. http://www.modbustools.com/modbus.html#function05
+	2. http://www.simplymodbus.ca/ASCII.htm
+	3. http://www.simplymodbus.ca/FAQ.htm#Modbus
