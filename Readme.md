@@ -27,6 +27,6 @@ This Python 3 script is used to read or write data onto FATEK PLC using Modbus A
 
 > Refferences
 
-	1. [a link](http://www.modbustools.com/modbus.html#function05)
+	1. http://www.modbustools.com/modbus.html#function05
 	2. http://www.simplymodbus.ca/ASCII.htm
 	3. http://www.simplymodbus.ca/FAQ.htm#Modbus
