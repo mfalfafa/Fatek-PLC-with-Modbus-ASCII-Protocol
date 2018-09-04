@@ -1,7 +1,10 @@
+# MODBUS ASCII Protocol using Python Script
+
 import serial
 import serial.tools.list_ports
 import time
 from LRC_checksum_calculator import *
+from Modbus_ascii_command import *
 
 connected = False
 ser_rfid=0
@@ -46,58 +49,95 @@ recData=''
 # Format Data :
 # ':01 03 00 00 00 02 FA\r\n'
 # cmd = [slave_addr, func, start_addr_H, start_addr_L, quantity_H, quantity_L]
-# Commands
-# Turn on single coil :
-# '1,5,0,0,255,0' -> coil Y0
-# '1,5,0,1,255,0' -> coil Y1
-# '1,5,0,2,255,0' -> coil Y2
-# '1,5,0,3,255,0' -> coil Y3
-# '1,5,0,4,255,0' -> coil Y4
-# '1,5,0,5,255,0' -> coil Y5
-# '1,5,0,6,255,0' -> coil Y6
-# '1,5,0,7,255,0' -> coil Y7
-# Turn off single coil
-# '1,5,0,0,0,0' -> coil Y0
-# '1,5,0,1,0,0' -> coil Y1
-# '1,5,0,2,0,0' -> coil Y2
-# '1,5,0,3,0,0' -> coil Y3
-# '1,5,0,4,0,0' -> coil Y4
-# '1,5,0,5,0,0' -> coil Y5
-# '1,5,0,6,0,0' -> coil Y6
-# '1,5,0,7,0,0' -> coil Y7
-# Read Single coil
-# '1,1,0,0,0,1' -> coil Y0
-# '1,1,0,1,0,1' -> coil Y1
-# '1,1,0,2,0,1' -> coil Y2
-# '1,1,0,3,0,1' -> coil Y3
-# '1,1,0,4,0,1' -> coil Y4
-# '1,1,0,5,0,1' -> coil Y5
-# '1,1,0,6,0,1' -> coil Y6
-# '1,1,0,7,0,1' -> coil Y7
-# Read Holding Register (Single)
-# '1,3,0,0,0,1' -> Register R0
-# '1,3,0,1,0,1' -> Register R1
-# '1,3,0,2,0,1' -> Register R2
-# '1,3,0,3,0,1' -> Register R3
-# '1,3,0,4,0,1' -> Register R4
 
-cmd=['1,1,0,7,0,1','1,5,0,7,0,0','1,3,0,1,0,1','1,6,0,1,0,3','1,15,0,0,0,2,2,0,3']
-for i in range(len(cmd)):
-   cmd[i]=LRC_calc(cmd[i])
+# cmd=['1,1,0,7,0,1','1,5,0,7,0,0','1,3,0,1,0,1','1,6,0,1,0,3','1,15,0,0,0,2,2,0,3']
+# for i in range(len(cmd)):
+#    cmd[i]=LRC_calc(cmd[i])
+
+def Y0_on():
+    ser_rfid.write(LRC_calc(Y0_ON).encode('utf-8'))
+def Y1_on():
+    ser_rfid.write(LRC_calc(Y1_ON).encode('utf-8'))
+def Y2_on():
+    ser_rfid.write(LRC_calc(Y2_ON).encode('utf-8'))
+def Y3_on():
+    ser_rfid.write(LRC_calc(Y3_ON).encode('utf-8'))
+def Y4_on():
+    ser_rfid.write(LRC_calc(Y4_ON).encode('utf-8'))
+def Y5_on():
+    ser_rfid.write(LRC_calc(Y5_ON).encode('utf-8'))
+def Y6_on():
+    ser_rfid.write(LRC_calc(Y6_ON).encode('utf-8'))
+def Y7_on():
+    ser_rfid.write(LRC_calc(Y7_ON).encode('utf-8'))
+
+def Y0_off():
+    ser_rfid.write(LRC_calc(Y0_OFF).encode('utf-8'))
+def Y1_off():
+    ser_rfid.write(LRC_calc(Y1_OFF).encode('utf-8'))
+def Y2_off():
+    ser_rfid.write(LRC_calc(Y2_OFF).encode('utf-8'))
+def Y3_off():
+    ser_rfid.write(LRC_calc(Y3_OFF).encode('utf-8'))
+def Y4_off():
+    ser_rfid.write(LRC_calc(Y4_OFF).encode('utf-8'))
+def Y5_off():
+    ser_rfid.write(LRC_calc(Y5_OFF).encode('utf-8'))
+def Y6_off():
+    ser_rfid.write(LRC_calc(Y6_OFF).encode('utf-8'))
+def Y7_off():
+    ser_rfid.write(LRC_calc(Y7_OFF).encode('utf-8'))
     
-while 1:
-    ser_rfid.write(cmd[2].encode('utf-8'))
-    #print(cmd[1])
+def parse_data():
     if ser_rfid.inWaiting():
-        recData=ser_rfid.readall()
-        recData=recData.decode('ascii')
-        # print (recData)
-        try:            
-            start = recData.index( ':' ) + len( ':' )
-            end = recData.index( '\n', start )
-            recData = recData[start:end]
-            print (recData)
+        data=ser_rfid.readall()
+        try:
+            data=data.decode('ascii')
+            start = data.index( ':' ) + len( ':' )
+            end = data.index( '\r\n', start )
+            data = data[start:end]
+            n=len(data)
+            data=data[n-4:n-2]
+            return (data)
         except Exception as e:
             print (e)
-            pass
-    time.sleep(0.5)
+            return (-1)
+    else:
+        return (-1)
+
+def Y0_Y7_read():
+    ser_rfid.write(LRC_calc(READ_Y0_Y7).encode('utf-8'))
+    result=parse_data()
+    if result != (-1):
+        # Convert HEX to bits for Coils (Y)
+        buff=[0]*8  # there are 8 coils
+        result=int(result,16)
+        for i in range(8):
+            if result >= 2:
+                div=int(result/2)
+                mod=result%2
+                buff[i]=mod
+                result=div
+            else:
+                if result == 1:
+                    buff[i]=result
+                    result=0
+        print (buff)
+        return buff
+    else:
+        return (-1)
+
+Y4_on()
+time.sleep(0.1)
+Y5_on()
+time.sleep(0.1)
+
+while 1:
+    lamps=Y0_Y7_read()
+    if lamps != (-1):
+        if lamps[0] != (-1):
+            if lamps[0] == 1:
+                print ('Coil Y0 is on')
+            else:
+                print ('Coil Y0 is off')
+    time.sleep(0.1)
