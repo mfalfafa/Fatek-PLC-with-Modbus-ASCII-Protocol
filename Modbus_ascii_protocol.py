@@ -54,6 +54,7 @@ recData=''
 # for i in range(len(cmd)):
 #    cmd[i]=LRC_calc(cmd[i])
 
+# Turn on single coil
 def Y0_on():
     ser_rfid.write(LRC_calc(Y0_ON).encode('utf-8'))
 def Y1_on():
@@ -70,7 +71,7 @@ def Y6_on():
     ser_rfid.write(LRC_calc(Y6_ON).encode('utf-8'))
 def Y7_on():
     ser_rfid.write(LRC_calc(Y7_ON).encode('utf-8'))
-
+# Turn off single coil
 def Y0_off():
     ser_rfid.write(LRC_calc(Y0_OFF).encode('utf-8'))
 def Y1_off():
@@ -87,7 +88,8 @@ def Y6_off():
     ser_rfid.write(LRC_calc(Y6_OFF).encode('utf-8'))
 def Y7_off():
     ser_rfid.write(LRC_calc(Y7_OFF).encode('utf-8'))
-    
+
+# Parse incoming data from serial port
 def parse_data():
     if ser_rfid.inWaiting():
         data=ser_rfid.readall()
@@ -105,6 +107,7 @@ def parse_data():
     else:
         return (-1)
 
+# reads all Coils (Y0 - Y7)
 def Y0_Y7_read():
     ser_rfid.write(LRC_calc(READ_Y0_Y7).encode('utf-8'))
     result=parse_data()
@@ -132,6 +135,7 @@ time.sleep(0.1)
 Y5_on()
 time.sleep(0.1)
 
+# Main while
 while 1:
     lamps=Y0_Y7_read()
     if lamps != (-1):
